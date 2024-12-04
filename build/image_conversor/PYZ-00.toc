@@ -1,4 +1,4 @@
-('C:\\Users\\ra062453\\Documents\\dev\\Python\\conversor_de_imagens\\build\\image_conversor\\PYZ-00.pyz',
+('C:\\Users\\ra062453\\Documents\\dev\\Python\\conversor_de_arquivos\\build\\image_conversor\\PYZ-00.pyz',
  [('PIL',
    'C:\\Users\\ra062453\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PIL\\__init__.py',
    'PYMODULE'),
