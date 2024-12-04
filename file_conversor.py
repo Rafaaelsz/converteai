@@ -211,7 +211,7 @@ def style_button(button):
 
 # Configuração da janela
 root = tk.Tk()
-root.title("Conversor de Arquivos v1")
+root.title("Conversor de Arquivos")
 root.geometry("600x700")
 root.configure(bg=BACKGROUND_COLOR)
 
