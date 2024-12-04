@@ -169,9 +169,6 @@ root.title("Conversor de Arquivos v1")
 root.geometry("600x700")
 root.configure(bg=BACKGROUND_COLOR)
 
-icon = PhotoImage(file=r"C:\Users\ra062453\Documents\dev\Python\conversor_de_imagens/icon.png")
-root.iconphoto(True, icon)
-
 # Título
 title = tk.Label(root, text="Conversor de Arquivos", bg=BACKGROUND_COLOR, fg=TITLE_COLOR, font=("Helvetica", 18, "bold"))
 title.pack(pady=20)
