@@ -3,6 +3,9 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 import threading
 from tkinter import PhotoImage
+from PIL import Image
+from pdf2docx import Converter
+from pillow_heif import register_heif_opener
 
 # Definições de Cores e Fontes
 BACKGROUND_COLOR = "#F0F4F8"  # Azul claro suave
@@ -47,93 +50,142 @@ def import_libraries():
     from pdf2docx import Converter
     from pillow_heif import register_heif_opener
 
+def ensure_output_directory():
+    global output_directory
+    if not output_directory:
+        output_directory = filedialog.askdirectory(title="Selecione um diretório para salvar os arquivos")
+        if not output_directory:
+            messagebox.showerror("Erro", "Nenhum diretório foi selecionado. Operação cancelada.")
+            return False
+    return True
+
+# Funções para selecionar arquivos
+def select_multiple_files(file_types, conversion_function):
+    file_paths = filedialog.askopenfilenames(filetypes=file_types)
+    
+    # Verificar se o número de arquivos excede o limite
+    if len(file_paths) > 10:
+        messagebox.showwarning("Limite Excedido", "Você pode selecionar no máximo 10 arquivos por vez.")
+        file_paths = file_paths[:10]  # Limitar a 10 arquivos
+    
+    if file_paths:
+        run_conversion_in_thread(conversion_function, file_paths)
+
 # Funções de conversão
 def jpeg_to_pdf(image_paths):
-    import_libraries()
+    if not ensure_output_directory():
+        return
     try:
-        for image_path in image_paths:
-            image = Image.open(image_path)
-            if image.mode != 'RGB':
-                image = image.convert('RGB')
-            output_filename = f"{os.path.basename(image_path).split('.')[0]}.pdf"
-            output_path = save_file_in_directory(output_filename)
-            if output_path:
-                image.save(output_path, "PDF", resolution=100.0)
-        open_directory(output_directory)
+        # Perguntar ao usuário se deseja combinar todas as imagens em um único PDF
+        combine = messagebox.askyesno("Combinar Arquivos", "Deseja combinar todas as imagens em um único arquivo PDF?")
+        
+        if combine:
+            images = []
+            for image_path in image_paths:
+                image = Image.open(image_path)
+                if image.mode != 'RGB':
+                    image = image.convert('RGB')
+                images.append(image)
+            
+            output_filename = os.path.join(output_directory, "combined.pdf")
+            images[0].save(output_filename, save_all=True, append_images=images[1:], resolution=100.0)
+        else:
+            for image_path in image_paths:
+                image = Image.open(image_path)
+                if image.mode != 'RGB':
+                    image = image.convert('RGB')
+                output_filename = os.path.join(output_directory, f"{os.path.basename(image_path).split('.')[0]}.pdf")
+                image.save(output_filename, "PDF", resolution=100.0)
+        
         messagebox.showinfo("Sucesso", "Todas as imagens foram convertidas com sucesso!")
     except Exception as e:
         messagebox.showerror("Erro", f"Erro ao converter imagens: {e}")
 
 def jpeg_to_png(image_paths):
-    import_libraries()
+    if not ensure_output_directory():
+        return
     try:
         for image_path in image_paths:
             image = Image.open(image_path)
-            output_filename = f"{os.path.basename(image_path).split('.')[0]}.png"
-            output_path = save_file_in_directory(output_filename)
-            if output_path:
-                image.save(output_path, "PNG")
-        open_directory(output_directory)
+            output_filename = os.path.join(output_directory, f"{os.path.basename(image_path).split('.')[0]}.png")
+            image.save(output_filename, "PNG")
         messagebox.showinfo("Sucesso", "Todas as imagens JPEG foram convertidas para PNG!")
     except Exception as e:
         messagebox.showerror("Erro", f"Erro ao converter imagens JPEG: {e}")
 
 def heic_to_jpeg(heic_paths):
-    import_libraries()
+    if not ensure_output_directory():
+        return
     try:
         register_heif_opener()
         for heic_path in heic_paths:
             image = Image.open(heic_path)
-            output_filename = f"{os.path.basename(heic_path).split('.')[0]}.jpeg"
-            output_path = save_file_in_directory(output_filename)
-            if output_path:
-                image.save(output_path, "JPEG")
-        open_directory(output_directory)
+            output_filename = os.path.join(output_directory, f"{os.path.basename(heic_path).split('.')[0]}.jpeg")
+            image.save(output_filename, "JPEG")
         messagebox.showinfo("Sucesso", "Todos os arquivos HEIC foram convertidos para JPEG!")
     except Exception as e:
         messagebox.showerror("Erro", f"Erro ao converter HEIC para JPEG: {e}")
 
 def png_to_pdf(png_paths):
-    import_libraries()
+    if not ensure_output_directory():
+        return
     try:
-        for png_path in png_paths:
-            image = Image.open(png_path)
-            if image.mode != 'RGB':
-                image = image.convert('RGB')
-            output_filename = f"{os.path.basename(png_path).split('.')[0]}.pdf"
-            output_path = save_file_in_directory(output_filename)
-            if output_path:
-                image.save(output_path, "PDF")
-        open_directory(output_directory)
+        # Perguntar ao usuário se deseja combinar todas as imagens em um único PDF
+        combine = messagebox.askyesno("Combinar Arquivos", "Deseja combinar todas as imagens em um único arquivo PDF?")
+        
+        if combine:
+            images = []
+            for png_path in png_paths:
+                image = Image.open(png_path)
+                if image.mode != 'RGB':
+                    image = image.convert('RGB')
+                images.append(image)
+            
+            output_filename = os.path.join(output_directory, "combined.pdf")
+            images[0].save(output_filename, save_all=True, append_images=images[1:], resolution=100.0)
+        else:
+            for png_path in png_paths:
+                image = Image.open(png_path)
+                if image.mode != 'RGB':
+                    image = image.convert('RGB')
+                output_filename = os.path.join(output_directory, f"{os.path.basename(png_path).split('.')[0]}.pdf")
+                image.save(output_filename, "PDF")
+        
         messagebox.showinfo("Sucesso", "Todas as imagens PNG foram convertidas para PDF!")
     except Exception as e:
         messagebox.showerror("Erro", f"Erro ao converter imagens PNG: {e}")
 
 def pdf_to_docx(pdf_paths):
-    import_libraries()
+    if not ensure_output_directory():
+        return
     try:
-        for pdf_path in pdf_paths:
-            output_filename = f"{os.path.basename(pdf_path).split('.')[0]}.docx"
-            output_path = save_file_in_directory(output_filename)
-            if output_path:
+        # Perguntar ao usuário se deseja combinar todos os PDFs em um único arquivo DOCX
+        combine = messagebox.askyesno("Combinar Arquivos", "Deseja combinar todos os PDFs em um único arquivo DOCX?")
+        
+        if combine:
+            docx_path = os.path.join(output_directory, "combined.docx")
+            cv = Converter(pdf_paths)
+            cv.convert(docx_path, start=0, end=None)
+            cv.close()
+        else:
+            for pdf_path in pdf_paths:
+                output_filename = os.path.join(output_directory, f"{os.path.basename(pdf_path).split('.')[0]}.docx")
                 cv = Converter(pdf_path)
-                cv.convert(output_path, start=0, end=None)
+                cv.convert(output_filename, start=0, end=None)
                 cv.close()
-        open_directory(output_directory)
+        
         messagebox.showinfo("Sucesso", "Todos os PDFs foram convertidos para DOCX!")
     except Exception as e:
         messagebox.showerror("Erro", f"Erro ao converter PDF para DOCX: {e}")
 
 def jfif_to_jpeg(jfif_paths):
-    import_libraries()
+    if not ensure_output_directory():
+        return
     try:
         for jfif_path in jfif_paths:
             image = Image.open(jfif_path)
-            output_filename = f"{os.path.basename(jfif_path).split('.')[0]}.jpeg"
-            output_path = save_file_in_directory(output_filename)
-            if output_path:
-                image.save(output_path, "JPEG")
-        open_directory(output_directory)
+            output_filename = os.path.join(output_directory, f"{os.path.basename(jfif_path).split('.')[0]}.jpeg")
+            image.save(output_filename, "JPEG")
         messagebox.showinfo("Sucesso", "Todos os arquivos JFIF foram convertidos para JPEG!")
     except Exception as e:
         messagebox.showerror("Erro", f"Erro ao converter JFIF para JPEG: {e}")
@@ -143,13 +195,7 @@ def run_conversion_in_thread(conversion_function, *args):
     thread = threading.Thread(target=conversion_function, args=args)
     thread.start()
 
-# Funções para selecionar arquivos
-def select_multiple_files(file_types, conversion_function):
-    file_paths = filedialog.askopenfilenames(filetypes=file_types)
-    if file_paths:
-        run_conversion_in_thread(conversion_function, file_paths)
-
-# Função para estilizar botões
+# Funções para estilizar botões
 def style_button(button):
     button.config(
         bg=BUTTON_COLOR,
