@@ -6,6 +6,7 @@ from tkinter import PhotoImage
 from PIL import Image
 from pdf2docx import Converter
 from pillow_heif import register_heif_opener
+import soundfile as sf
 
 # Definições de Cores e Fontes
 BACKGROUND_COLOR = "#F0F4F8"  # Azul claro suave
@@ -190,6 +191,18 @@ def jfif_to_jpeg(jfif_paths):
     except Exception as e:
         messagebox.showerror("Erro", f"Erro ao converter JFIF para JPEG: {e}")
 
+def ogg_to_wav(ogg_paths):
+    if not ensure_output_directory():
+        return
+    try:
+        for ogg_path in ogg_paths:
+            data, samplerate = sf.read(ogg_path)
+            output_filename = os.path.join(output_directory, f"{os.path.basename(ogg_path).split('.')[0]}.wav")
+            sf.write(output_filename, data, samplerate)
+        messagebox.showinfo("Sucesso", "Todos os arquivos OGG foram convertidos para WAV!")
+    except Exception as e:
+        messagebox.showerror("Erro", f"Erro ao converter OGG para WAV: {e}")
+
 # Função para rodar as conversões em threads
 def run_conversion_in_thread(conversion_function, *args):
     thread = threading.Thread(target=conversion_function, args=args)
@@ -223,7 +236,7 @@ title.pack(pady=20)
 button_frame = tk.Frame(root, bg=BACKGROUND_COLOR)
 button_frame.pack(pady=10)
 
-btn_select_directory = tk.Button(button_frame, text="Selecionar Diretório de Saída", command=select_output_directory)
+btn_select_directory = tk.Button(button_frame, text="Selecionar Diretório que o Arquivo será Salvo", command=select_output_directory)
 style_button(btn_select_directory)
 btn_select_directory.pack(pady=10)
 
@@ -256,5 +269,10 @@ btn_jfif_to_jpeg = tk.Button(button_frame, text="Converter JFIF para JPEG",
                              command=lambda: select_multiple_files([("JFIF files", "*.jfif")], jfif_to_jpeg))
 style_button(btn_jfif_to_jpeg)
 btn_jfif_to_jpeg.pack(pady=10)
+
+btn_ogg_to_wav = tk.Button(button_frame, text="Converter OGG para WAV", 
+                           command=lambda: select_multiple_files([("OGG files", "*.ogg")], ogg_to_wav))
+style_button(btn_ogg_to_wav)
+btn_ogg_to_wav.pack(pady=10)
 
 root.mainloop()
