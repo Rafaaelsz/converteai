@@ -29,7 +29,7 @@ ou baixe o repositório como um arquivo .zip e extraia o conteúdo.
 3. Execute o aplicativo
 No terminal ou prompt de comando, execute:
 
-## python image_conversor.py
+## python file_conversor.py
 
 ## Como usar o aplicativo?
 
