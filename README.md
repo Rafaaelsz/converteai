@@ -19,7 +19,7 @@ Abra o terminal ou prompt de comando e execute:
 1. Abra seu terminal ou prompt de comando.
 2. Clone o repositório:
 
-## https://github.com/Rafaaelsz/conversor_de_arquivos
+## git clone https://github.com/Rafaaelsz/conversor_de_arquivos
 ou baixe o repositório como um arquivo .zip e extraia o conteúdo.
 
 2. Navegue até a pasta do projeto
