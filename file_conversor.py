@@ -11,7 +11,7 @@ TITLE_COLOR = "#007BFF"
 FONT = ("Helvetica", 12)
 BUTTON_FONT = ("Helvetica", 10, "bold")
 
-class FileConversorApp:
+class FileConversorApp: 
     def __init__(self, root):
         self.output_directory = None
         self.root = root
